@@ -1,0 +1,26 @@
+{
+  "name": "cryptofiat-test-env",
+  "version": "1.0.0",
+  "description": "Cryptofiat test environment setup",
+  "main": "build.js",
+  "dependencies": {
+    "solc": "^0.4.10",
+    "web3": "^0.18.2"
+  },
+  "scripts": {
+    "docker": "docker build -t cryptofiat_geth . && docker run -it -p=8545:8545 cryptofiat_geth",
+    "testrpc": "testrpc --gasLimit=0x8000000 --mnemonic cryptofiat",
+    "start": "node build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cryptofiat/test-environment.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cryptofiat/test-enviroment/issues"
+  },
+  "homepage": "https://github.com/cryptofiat/test-enviroment#readme"
+}
