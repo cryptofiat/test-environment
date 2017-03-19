@@ -4,6 +4,7 @@
   "description": "Cryptofiat test environment setup",
   "main": "build.js",
   "dependencies": {
+    "js-yaml": "^3.8.2",
     "solc": "^0.4.10",
     "web3": "^0.18.2"
   },

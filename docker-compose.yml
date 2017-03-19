@@ -13,3 +13,13 @@ services:
       - "30303:30303"
       - "30303:30303/udp"
       - "8545:8545"
+  config:
+    image: hyness/spring-cloud-config-server
+    container_name: cryptofiat-config
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS: /config
+    volumes:
+      - ./application.yml:/config/application.yml:ro
+    ports:
+      - "8888:8888"
