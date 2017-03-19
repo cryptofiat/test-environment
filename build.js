@@ -29,102 +29,105 @@ if (output.errors) {
     process.exit(1);
 }
 
-var installContract = function(name, params) {
-    return new Promise(function(resolve, reject) {
+console.log('Contracts compiled successfully!');
 
-        var contract = output.contracts[":" + name];
-
-        var Contract = web3.eth.contract(JSON.parse(contract.interface));
-
-        web3.eth.getAccounts(function (e, accounts) {
-            var account = accounts[roles.Master];
-
-            try {
-                web3.personal.unlockAccount(account, 'Parool123');
-            } catch (e) {
-            }
-
-            var contractCreated = function (e, c) {
-                if (!e) {
-                    if (c.address) {
-                        contracts[name] = c;
-                        resolve(c);
-                    }
-                } else {
-                    reject(e);
-                }
-            };
-
-            var contractParams = { from: account, data: '0x' + contract.bytecode, gas: 50000000 };
-
-            if (params) {
-                Contract.new(params, contractParams, contractCreated);
-            } else {
-                Contract.new(contractParams, contractCreated);
-            }
-        });
-    });
+var unlockAccount = function(account) {
+    try {
+        web3.personal.unlockAccount(account, 'Parool123');
+    } catch (e) {
+        console.error(e);
+    }
 };
 
-var contractMined = function (name) {
-    return function (c) {
-        console.log(name + " mined! Address: " + c.address);
+var installContract = function(name, params) {
+    return function() {
+        console.log('Installing contract ' + name);
+        return new Promise(function(resolve, reject) {
+
+            var contract = output.contracts[":" + name];
+
+            var Contract = web3.eth.contract(JSON.parse(contract.interface));
+
+            web3.eth.getAccounts(function (e, accounts) {
+                var account = accounts[roles.Master];
+                unlockAccount(account);
+
+                var contractCreated = function (e, c) {
+                    if (!e) {
+                        if (c.address) {
+                            contracts[name] = c;
+                            console.log(name + " mined! Address: " + c.address);
+                            resolve(c);
+                        }
+                    } else {
+                        reject(e);
+                    }
+                };
+
+                var contractParams = { from: account, data: '0x' + contract.bytecode, gas: 50000000 };
+
+                if (params) {
+                    Contract.new(params, contractParams, contractCreated);
+                } else {
+                    Contract.new(contractParams, contractCreated);
+                }
+            });
+        });
     };
 };
 
 var approveAccount = function(approver, account) {
-    console.log('Approving account ' + account);
-    contracts['Approving'].approveAccount(account, {from: approver, gas: 50000000}, function(err, result) {
-        if(!err) {
-            console.log(result);
-        } else {
-            console.error(err);
-        }
-    });
-};
-
-var upgrade = function(contract, accounts, id, address) {
-    return new Promise(function(resolve, reject) {
-        contract.upgrade(id, address, {from: accounts[roles.Master], gas: 50000000}, function(err, result) {
-            if(err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
+    return function() {
+        console.log('Approving account ' + account);
+        return new Promise(function(resolve, reject){
+            unlockAccount(approver);
+            contracts['Approving'].approveAccount(account, {from: approver, gas: 50000000}, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
         });
-    });
+    };
 };
 
-installContract('CryptoFiat').then(function(c) {
-    console.log("Cryptofiat mined! Address: " + c.address);
+var upgrade = function(CryptoFiat, accounts, id) {
+    return function(contract) {
+        console.log('Upgrading contract at ' + id + ' to address ' + contract.address);
+        return new Promise(function(resolve, reject) {
+            CryptoFiat.upgrade(id, contract.address, {from: accounts[roles.Master], gas: 50000000}, function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    console.log('Contract at ' + id + ' upgraded');
+                    resolve(result);
+                }
+            });
+        });
+    };
+};
+
+installContract('CryptoFiat')().then(function(c) {
     web3.eth.getAccounts(function (e, accounts) {
-        Promise.all([
-            installContract('Data', [c.address]).then(function(data) {
-                return upgrade(c, accounts, 1, data.address);
-            }),
-            installContract('Accounts', [c.address]).then(function(data) {
-                return upgrade(c, accounts, 2, data.address);
-            }),
-            installContract('Approving', [c.address, accounts[roles.AccountApprover]]).then(function(data) {
-                return upgrade(c, accounts, 3, data.address);
-            }),
-            installContract('Reserve', [c.address, accounts[roles.Reserve]]).then(function(data) {
-                return upgrade(c, accounts, 4, data.address);
-            }),
-            installContract('Enforcement', [c.address, accounts[roles.LawEnforcer], accounts[roles.Designator], accounts[roles.Account]]).then(function(data) {
-                return upgrade(c, accounts, 5, data.address);
-            }),
-            installContract('AccountRecovery', [c.address]).then(function(data) {
-                return upgrade(c, accounts, 6, data.address);
-            }),
-            installContract('Delegation', [c.address]).then(function(data) {
-                return upgrade(c, accounts, 7, data.address);
-            })
-        ]).then(function () {
-            console.log("All contracts mined and registered! Approving accounts");
-            approveAccount(accounts[roles.AccountApprover], accounts[roles.Alice]);
-            //approveAccount(accounts[roles.AccountApprover], accounts[roles.Bob]);
-            //approveAccount(accounts[roles.AccountApprover], accounts[roles.Carol]);
-        });
+            installContract('Data', [c.address])()
+            .then(upgrade(c, accounts, 1))
+            .then(installContract('Accounts', [c.address]))
+            .then(upgrade(c, accounts, 2))
+            .then(installContract('Approving', [c.address, accounts[roles.AccountApprover]]))
+            .then(upgrade(c, accounts, 3))
+            .then(installContract('Reserve', [c.address, accounts[roles.Reserve]]))
+            .then(upgrade(c, accounts, 4))
+            .then(installContract('Enforcement', [c.address, accounts[roles.LawEnforcer], accounts[roles.Designator], accounts[roles.Account]])).then(upgrade(c, accounts, 5))
+            .then(installContract('AccountRecovery', [c.address]))
+            .then(upgrade(c, accounts, 6))
+            .then(installContract('Delegation', [c.address]))
+            .then(upgrade(c, accounts, 7))
+            .then(function () {
+                console.log("All contracts mined and registered! Approving accounts");
+                approveAccount(accounts[roles.AccountApprover], accounts[roles.Alice])()
+                .then(approveAccount(accounts[roles.AccountApprover], accounts[roles.Bob]))
+                .then(approveAccount(accounts[roles.AccountApprover], accounts[roles.Carol]));
+            });
     });
 });
