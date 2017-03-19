@@ -8,7 +8,7 @@
     "web3": "^0.18.2"
   },
   "scripts": {
-    "docker": "docker build -t cryptofiat_geth . && docker run -it -p=8545:8545 cryptofiat_geth",
+    "docker": "docker-compose up -d",
     "testrpc": "testrpc --gasLimit=0x8000000 --mnemonic cryptofiat",
     "start": "node build.js",
     "test": "echo \"Error: no test specified\" && exit 1"

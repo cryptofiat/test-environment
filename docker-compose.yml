@@ -1,0 +1,15 @@
+version: '2'
+services:
+  geth:
+    image: ethereum/client-go
+    container_name: cryptofiat
+    entrypoint: /root/geth.sh
+    volumes:
+      - ./docker/geth.sh:/root/geth.sh:ro
+      - ./docker/genesis.json:/root/files/genesis.json:ro
+      - ./docker/keystore:/root/.ethereum/devchain/keystore:rw
+      - ./docker/.ethash:/root/.ethash:rw
+    ports:
+      - "30303:30303"
+      - "30303:30303/udp"
+      - "8545:8545"
