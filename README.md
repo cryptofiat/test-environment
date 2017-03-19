@@ -2,9 +2,8 @@
 
 ## Running
 - Install dependencies `npm install`
-- Run with testrpc `npm install -g ethereumjs-testrpc` and `npm run testrpc` 
-- Or run geth in Docker `npm run docker`
-- Start `npm start`
+- Run Geth and config server in Docker `docker-compose up -d`
+- Install contracts `npm start`
 
 ## Accounts
 
