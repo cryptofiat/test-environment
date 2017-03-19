@@ -1,7 +1,5 @@
 .idea
-node_modules
-docker/geth
-docker/geth.ipc
-docker/history
-docker/.ethash
-application.yml
+geth/geth
+geth/geth.ipc
+geth/history
+geth/.ethash

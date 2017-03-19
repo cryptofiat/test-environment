@@ -20,10 +20,11 @@ const roles = {
 
 const contracts = {};
 
-web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
+web3.setProvider(new web3.providers.HttpProvider('http://geth:8545'));
 
 var compileContracts = function() {
-    const contractSource = fs.readFileSync('../contract/CryptoFiat.sol', 'utf8');
+
+    const contractSource = fs.readFileSync('CryptoFiat.sol', 'utf8');
 
     const output = solc.compile(contractSource);
 
@@ -168,7 +169,7 @@ var generateConfigFile = function(contracts, accounts) {
             }
         }
     };
-    fs.writeFileSync('application.yml', yaml.safeDump(config));
+    fs.writeFileSync('/config/application.yml', yaml.safeDump(config));
 };
 
 var installContracts = function() {
@@ -203,3 +204,5 @@ var installContracts = function() {
         });
     });
 };
+
+installContracts();

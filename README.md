@@ -1,9 +1,7 @@
 # Cryptofiat test environment setup
 
 ## Running
-- Install dependencies `npm install`
-- Run Geth and config server in Docker `docker-compose up -d`
-- Install contracts `npm start`
+- `docker-compose up -d`
 
 ## Accounts
 
