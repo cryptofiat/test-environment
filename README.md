@@ -1,5 +1,16 @@
 # Cryptofiat test environment setup
 
+## Prequisites
+
+[Docker](https://docs.docker.com/engine/understanding-docker/)
+* [Install docker and docker-compose](https://docs.docker.com/compose/install/)
+
+Installing Docker on Mac (OSX El Capitan) via [Homebwrew](https://brew.sh/) and command line:
+* `brew install docker`
+* `brew install docker-machine`
+* `docker-machine create default` (see this [Stackoverflow answer](http://stackoverflow.com/questions/34785064/rails-docker-host-does-not-exist-default))
+* `eval $(docker-machine env default)` (see this [Stackoverflow answer](http://stackoverflow.com/questions/36193300/mac-os-x-sudo-docker-cannot-connect-to-the-docker-daemon-is-the-docker-daemon-r))
+
 ## Running
 - `docker-compose up -d`
 
@@ -20,3 +31,6 @@ Both testrpc and geth in container contain following accounts.
 - 0xbddb7a84303a955cd74be8a24f5b67e827d6e70f **Bob** (Approved with 1000 CryptoEuro)
 - 0x8bc72212834de16211f31855df83376199de5429 **Carol** (Approved with 1000 CryptoEuro)
 - 0xf4661f0029d6901629df80e8d96260f9590d9404 **Erin** (Unapproved)
+
+## Using the test environment
+TODO...
