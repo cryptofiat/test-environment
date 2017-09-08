@@ -34,3 +34,9 @@ Both testrpc and geth in container contain following accounts.
 
 ## Using the test environment
 TODO...
+
+
+## Running Metropolis testnet without docker
+geth --datadir=geth/ init geth/genesis.json 
+
+geth --datadir=geth/ --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --rpcapi "db,personal,eth,net,web3" --rpccorsdomain='*' --networkid=1234 --rpc --rpcaddr="0.0.0.0" --mine --minerthreads 1
